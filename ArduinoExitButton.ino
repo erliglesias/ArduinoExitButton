@@ -3,12 +3,12 @@
 #include <PubSubClient.h>
 #include <Thread.h>
 
-#define ARDUINO_CLIENT_ID "arduino_1"                              // Client ID for Arduino pub/sub
+#define ARDUINO_CLIENT_ID "arduino_1"                                // Client ID for Arduino pub/sub
 #define PUBLISH_DELAY 3000
 
-#define EXIT_COUNT_DOWN_STATUS "arduino_1/cont_down_status"        // MTTQ topic for CONT_DOWN_STATUS
+#define EXIT_COUNT_DOWN_STATUS "arduino_1/cont_down_status"          // MTTQ topic for CONT_DOWN_STATUS
 
-#define SUB_RELAY "arduino_1/relayPin"                                    // MTTQ topic for RELAY
+#define SUB_RELAY "arduino_1/relayPin"                               // MTTQ topic for RELAY
 #define SUB_RELAY_STATUS "arduino_1/status"                          // MTTQ topic for RELAY_STATUS
 
 #define SUB_RELAY1 "arduino_1/relayPin1"
@@ -27,8 +27,8 @@ const int buttonPin = 6;
 
 // Networking details
 byte mac[]    = {  0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02 };           // Ethernet shield (W5100) MAC address
-IPAddress ip(192, 168, 20, 105);                                   // Ethernet shield (W5100) IP address
-IPAddress server(192, 168, 20, 10);                                // MTTQ server IP address
+IPAddress ip(192, 168, xx, xx);                                    // Ethernet shield (W5100) IP address
+IPAddress server(192, 168, xx, xx);                                // MTTQ server IP address
 
 EthernetClient ethClient;
 PubSubClient client(ethClient);
@@ -128,7 +128,7 @@ void loop()
   }
 
   switch (actn) {
-    case 0:   //Estado del sensor
+    case 0:   //Pir Sensor Mode
       if (sensorValue == HIGH)
       {
         digitalWrite(relayPin, LOW);
@@ -138,7 +138,7 @@ void loop()
       countdown = false;
       wait_to_auto = false;
       break;
-    case 1:   //Comienza la cuenta atras
+    case 1:   //Countdown start
       digitalWrite(relayPin, LOW);
       client.publish(EXIT_COUNT_DOWN_STATUS, "001");
 
@@ -152,8 +152,9 @@ void loop()
 
       countdown = true;
       break;
-    case 2: // Estado Manual
-      if (wait_to_auto == true && sensorValue == HIGH) { //Si pulsamos apagar de forma manual espera a que el sensor no detecte nada para ponerse en auto
+    case 2: // Manual Mode
+      //If we press turn off manually wait for the sensor to turn off and it goes into sensor mode
+      if (wait_to_auto == true && sensorValue == HIGH) {
         actn = 0;
       }
       break;
@@ -182,7 +183,6 @@ void loop()
     if ( arrRelayValues[i] != arrPreviousState[i]){
       if (arrRelayValues[i] == LOW) {
         client.publish(arrSubStatus[i], "000");
-        Serial.println("Entra");
       } else {
         client.publish(arrSubStatus[i], "001");   
       }
